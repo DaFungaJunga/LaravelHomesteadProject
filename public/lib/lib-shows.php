@@ -1,5 +1,7 @@
 <?php
-class Users {
+require __DIR__ . DIRECTORY_SEPARATOR . "config.php";
+
+class Shows {
   private $pdo = null;
   private $stmt = null;
 
@@ -17,7 +19,9 @@ class Users {
       );
       return true;
     } catch (Exception $ex) {
-      $this->CB->verbose(0, "DB", $ex->getMessage(), "", 1);
+      //$this->CB->verbose(0, "DB", $ex->getMessage(), "", 1);
+      die($ex->getMessage());
+
     }
   }
 
@@ -46,12 +50,18 @@ class Users {
   function getShowByQuote ($quote) {
   // get() : get show
   // PARAM $id : show quote
-
-    $sql = "SELECT * FROM `shows` WHERE `id`=?";
+  try
+{
+    $sql = "SELECT * FROM `shows` WHERE `quote`=?";
     $this->stmt = $this->pdo->prepare($sql);
     $this->stmt->execute([$quote]);
     $entry = $this->stmt->fetchAll();
     return count($entry)==0 ? false : $entry[0] ;
+  }
+  catch(PDOException $e)
+{
+    echo $e->getMessage();
+}
   }
 
 
@@ -72,11 +82,13 @@ class Users {
   //       $quote - quote
 
     $sql = "INSERT INTO `shows` (`episode`, `season`, `quote`) VALUES (?, ?, ?)";
-    $cond = [$episode $season,$quote];
+    $cond = [$episode, $season, $quote];
     try {
       $this->stmt = $this->pdo->prepare($sql);
       $this->stmt->execute($cond);
     } catch (Exception $ex) {
+      window.alert($ex->getMessage());
+
       return false;
     }
     return true;
@@ -95,20 +107,22 @@ class Users {
       $this->stmt = $this->pdo->prepare($sql);
       $this->stmt->execute($cond);
     } catch (Exception $ex) {
+      window.alert($ex->getMessage());
       return false;
     }
     return true;
   }
 
   function del ($id) {
-  // del() : delete user
-  // PARAM $id - user ID
+  // del() : delete show
+  // PARAM $id - show ID
 
-    $sql = "DELETE FROM `users` WHERE `user_id`=?";
+    $sql = "DELETE FROM `shows` WHERE `id`=?";
     try {
       $this->stmt = $this->pdo->prepare($sql);
       $this->stmt->execute([$id]);
     } catch (Exception $ex) {
+      window.alert($ex->getMessage());
       return false;
     }
     return true;
